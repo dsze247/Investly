@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Welcome, {{ session["first_name"] }}</h2>
+<p>{{ session["email"] }}</p>
+
+<h4>Your Portfolios</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Portfolio Name</th>
+            <th>Risk Profile</th>
+            <th>Total Value</th>
+            <th>Daily Return</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in portfolios %}
+        <tr>
+            <td><a href="/portfoliodetails/{{ p[4] }}">{{ p[0] }}</a></td>
+            <td>{{ p[1] }}</td>
+            <td>${{ p[2] }}</td>
+            <td>{{ p[3] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="/listaction" class="btn btn-primary mb-4">Create New Portfolio</a>
+
+<h4>Your Watchlists</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Watchlist Name</th>
+            <th>Assets</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for w in watchlists %}
+        <tr>
+            <td><a href="/watchlistdetails/{{ w[1] }}">{{ w[0] }}</a></td>
+            <td>{{ w[2] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<a href="/listaction" class="btn btn-primary">Create New Watchlist</a>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ info[0] }}</h2>
+
+<a href="/watchlistdetails/{{ watchlist_id }}/edit" class="btn btn-secondary btn-sm">Edit</a>
+<a href="/watchlistdetails/{{ watchlist_id }}/delete" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+
+<h4 class="mt-4">Watched Assets</h4>
+{% if holdings == -1 %}
+<p>No assets in this watchlist yet.</p>
+{% else %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Name</th>
+            <th>Max Price</th>
+            <th>Min Price</th>
+            <th>Current Price</th>
+            <th>Date Added</th>
+            <th>24hr Change</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for h in holdings %}
+        <tr>
+            <td>{{ h[0] }}</td>
+            <td>{{ h[1] }}</td>
+            <td>${{ h[2] }}</td>
+            <td>${{ h[3] }}</td>
+            <td>${{ h[4] }}</td>
+            <td>{{ h[5] }}</td>
+            <td>{{ "%.2f" | format(h[6] * 100) }}%</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<a href="/dashboard" class="btn btn-outline-primary mt-3">Back to Dashboard</a>
+{% endblock %}
