@@ -2,7 +2,7 @@ import os
 from dotenv import load_dotenv
 import mysql.connector
 
-load_dotenv("../.env")
+load_dotenv(os.path.join(os.path.dirname(__file__), "../.env"))
 
 mysql_host = os.getenv("MYSQL_HOST")
 mysql_user = os.getenv("MYSQL_USER")
@@ -324,6 +324,18 @@ def create_portfolio(user_id, name, risk_profile):
         return -1
     cursor.close()
     connection.close()
+
+def get_holding_quantity(portfolio_id, asset_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    cursor.execute("""SELECT total_quantity FROM PortfolioHolding
+                   WHERE portfolio_id = %s AND asset_id = %s""", (portfolio_id, asset_id))
+    output = cursor.fetchone()
+    cursor.close()
+    connection.close()
+    if not output:
+        return 0
+    return float(output[0])
 
 def create_watchlist(user_id, name, watchlist_type):
     connection = get_connection() # connect to railway (our mysql db server)

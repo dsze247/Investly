@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session
 import hashlib
 import os
 from dotenv import load_dotenv
+load_dotenv()
 from backend.db import *
 
 secretkey = os.getenv("FLASK_SECRET_KEY")
@@ -29,8 +30,8 @@ def app_login():
         return render_template("login.html")
     else:
         result = get_user_by_login(request.form["email"], hashlib.sha256(request.form["password"].encode()).hexdigest())
-        print(request.form["email"])
-        print(hashlib.sha256(request.form["password"].encode()).hexdigest()) # change later, insecure
+        if result == -1:
+            return render_template("login.html", error="Invalid email or password.")
         session["user_id"] = result[0]
         session["first_name"] = result[1]
         session["last_name"] = result[2]
@@ -43,9 +44,10 @@ def app_signup():
     if request.method == 'GET':
         return render_template("signup.html")
     else:
-        print(request.form["email"])
-        print(hashlib.sha256(request.form["password"].encode()).hexdigest()) # change later, insecure
-        print(f"first name: {request.form['first_name']}, last name: {request.form['last_name']}")
+        hashed = hashlib.sha256(request.form["password"].encode()).hexdigest()
+        result = create_user(request.form["email"], request.form["first_name"], request.form["last_name"], hashed)
+        if result == -1:
+            return render_template("signup.html", error="An account with that email already exists.")
         return redirect("/login")
 
 # dashboard - screen 1
@@ -54,6 +56,10 @@ def app_dashboard():
     if "user_id" in session:
         portfolios = get_user_portfolios(session["user_id"])
         watchlists = get_user_watchlists(session["user_id"])
+        if portfolios == -1:
+            portfolios = []
+        if watchlists == -1:
+            watchlists = []
         return render_template("dashboard.html", portfolios=portfolios, watchlists=watchlists)
     else:
         return redirect("/login")
@@ -102,10 +108,45 @@ def app_watchlist_details(watchlist_id):
     else:
         return redirect("/login")
 
-# asset action form, buy sell etc - screen 3
-@app.route("/assetaction")
+# buy/sell trade form - screen 3
+@app.route("/assetaction", methods=["GET", "POST"])
 def app_assetaction():
-    return "<p> asset action form. should facilitate buying and selling.</p>"
+    if "user_id" not in session:
+        return redirect("/login")
+    portfolios = get_user_portfolios(session["user_id"])
+    if portfolios == -1:
+        portfolios = []
+    assets = get_all_assets()
+    if assets == -1:
+        assets = []
+    if request.method == "GET":
+        preselected = request.args.get("portfolio_id", "")
+        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected)
+    # POST
+    portfolio_id = request.form.get("portfolio_id")
+    asset_id = request.form.get("asset_id")
+    transaction_type = request.form.get("transaction_type")
+    quantity = request.form.get("quantity")
+    price = request.form.get("price")
+    preselected = portfolio_id or ""
+    if not all([portfolio_id, asset_id, transaction_type, quantity, price]):
+        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="All fields are required.")
+    try:
+        quantity = float(quantity)
+        price = float(price)
+    except ValueError:
+        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Invalid quantity or price.")
+    if quantity <= 0 or price <= 0:
+        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Quantity and price must be greater than 0.")
+    if transaction_type == "Sell":
+        current_qty = get_holding_quantity(int(portfolio_id), int(asset_id))
+        if quantity > current_qty:
+            return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected,
+                                   error=f"Cannot sell {quantity} — you only hold {current_qty}.")
+    result = add_transaction(int(portfolio_id), int(asset_id), transaction_type, quantity, price)
+    if result == -1:
+        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Transaction failed. Please try again.")
+    return redirect(f"/portfoliodetails/{portfolio_id}")
 
 # portfolio/watchlist action form, create portfolio/watchlist etc
 @app.route("/listaction")
