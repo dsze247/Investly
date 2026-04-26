@@ -148,7 +148,7 @@ def get_watchlist_holdings(watchlist_id):
     connection = get_connection() # connect to railway (our mysql db server)
     cursor = connection.cursor() # a cursor is a pointer that allows us to go through query results
     cursor.execute("""SELECT a.ticker_symbol, a.asset_name, wh.max_price, wh.min_price, ph.close_price, wh.added_date,
-                    ((ph.close_price - ph_prev.close_price) / ph_prev.close_price) AS change24hr
+                    ((ph.close_price - ph_prev.close_price) / ph_prev.close_price) AS change24hr, a.asset_id
                     FROM WatchlistHolding wh
                     INNER JOIN Asset a ON wh.asset_id = a.asset_id
                     INNER JOIN PriceHistory ph ON a.asset_id = ph.asset_id
@@ -309,6 +309,21 @@ def remove_from_watchlist(watchlist_id, asset_id):
     cursor.close()
     connection.close()
 
+
+def update_watchlist(watchlist_id, new_name, user_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+    try:
+        cursor.execute("""UPDATE Watchlist
+                            SET watchlist_name = %s
+                            WHERE watchlist_id = %s AND user_id = %s;""", (new_name, watchlist_id, user_id))
+        connection.commit()
+    except:
+        cursor.close()
+        connection.close()
+        return -1
+    cursor.close()
+    connection.close()
 
 def create_portfolio(user_id, name, risk_profile):
     connection = get_connection() # connect to railway (our mysql db server)

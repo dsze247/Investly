@@ -203,6 +203,49 @@ def app_watchlist_delete(watchlist_id):
     else:
         return redirect("/login")
     
+# edit portfolio
+@app.route("/portfoliodetails/<int:portfolio_id>/edit", methods=["GET", "POST"])
+def app_portfolio_edit(portfolio_id):
+    if "user_id" not in session:
+        return redirect("/login")
+    user_id = session["user_id"]
+    info = get_portfolio_info(portfolio_id, user_id)
+    if info == -1:
+        return redirect("/dashboard")
+    if request.method == "GET":
+        return render_template("editportfolio.html", info=info, portfolio_id=portfolio_id)
+    new_name = request.form.get("portfolio_name")
+    new_risk = request.form.get("risk_profile")
+    result = update_portfolio(portfolio_id, new_name, new_risk, user_id)
+    if result == -1:
+        return render_template("editportfolio.html", info=info, portfolio_id=portfolio_id, error="Update failed.")
+    return redirect(f"/portfoliodetails/{portfolio_id}")
+
+# edit watchlist
+@app.route("/watchlistdetails/<int:watchlist_id>/edit", methods=["GET", "POST"])
+def app_watchlist_edit(watchlist_id):
+    if "user_id" not in session:
+        return redirect("/login")
+    user_id = session["user_id"]
+    info = get_watchlist_info(watchlist_id, user_id)
+    if info == -1:
+        return redirect("/dashboard")
+    if request.method == "GET":
+        return render_template("editwatchlist.html", info=info, watchlist_id=watchlist_id)
+    new_name = request.form.get("watchlist_name")
+    result = update_watchlist(watchlist_id, new_name, user_id)
+    if result == -1:
+        return render_template("editwatchlist.html", info=info, watchlist_id=watchlist_id, error="Update failed.")
+    return redirect(f"/watchlistdetails/{watchlist_id}")
+
+# remove asset from watchlist
+@app.route("/watchlistdetails/<int:watchlist_id>/remove/<int:asset_id>")
+def app_remove_from_watchlist(watchlist_id, asset_id):
+    if "user_id" not in session:
+        return redirect("/login")
+    remove_from_watchlist(watchlist_id, asset_id)
+    return redirect(f"/watchlistdetails/{watchlist_id}")
+
 # search page
 @app.route("/search", methods=["GET"])
 def app_search():

@@ -3,8 +3,8 @@
 {% block content %}
 <h2>{{ info[0] }}</h2>
 
-<a href="/assetaction?watchlist_id={{ watchlist_id }}" class="btn btn-success btn-sm">Add</a>
-<a href="/watchlistdetails/{{ watchlist_id }}/delete" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+<a href="/assetaction?watchlist_id={{ watchlist_id }}" class="btn btn-success btn-sm">Add Asset</a>
+<a href="/watchlistdetails/{{ watchlist_id }}/edit" class="btn btn-secondary btn-sm">Edit</a>
 
 <h4 class="mt-4">Watched Assets</h4>
 {% if holdings == -1 %}
@@ -20,6 +20,7 @@
             <th>Current Price</th>
             <th>Date Added</th>
             <th>24hr Change</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -32,6 +33,9 @@
             <td>${{ h[4] }}</td>
             <td>{{ h[5] }}</td>
             <td>{{ "%.2f" | format(h[6] * 100) }}%</td>
+            <td><a href="/watchlistdetails/{{ watchlist_id }}/remove/{{ h[7] }}"
+                   class="btn btn-danger btn-sm"
+                   onclick="return confirm('Remove this asset?')">Remove</a></td>
         </tr>
         {% endfor %}
     </tbody>
