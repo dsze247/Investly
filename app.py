@@ -120,34 +120,44 @@ def app_assetaction():
     if assets == -1:
         assets = []
     if request.method == "GET":
-        preselected = request.args.get("portfolio_id", "")
-        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected)
+        preselected_portfolio = request.args.get("portfolio_id", "")
+        preselected_watchlist = request.args.get("watchlist_id", "")
+        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected_portfolio=preselected_portfolio, preselected_watchlist=preselected_watchlist)
     # POST
     portfolio_id = request.form.get("portfolio_id")
+    watchlist_id = request.form.get("watchlist_id")
     asset_id = request.form.get("asset_id")
-    transaction_type = request.form.get("transaction_type")
-    quantity = request.form.get("quantity")
-    price = request.form.get("price")
-    preselected = portfolio_id or ""
-    if not all([portfolio_id, asset_id, transaction_type, quantity, price]):
-        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="All fields are required.")
-    try:
-        quantity = float(quantity)
-        price = float(price)
-    except ValueError:
-        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Invalid quantity or price.")
-    if quantity <= 0 or price <= 0:
-        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Quantity and price must be greater than 0.")
-    if transaction_type == "Sell":
-        current_qty = get_holding_quantity(int(portfolio_id), int(asset_id))
-        if quantity > current_qty:
-            return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected,
-                                   error=f"Cannot sell {quantity} — you only hold {current_qty}.")
-    result = add_transaction(int(portfolio_id), int(asset_id), transaction_type, quantity, price)
-    if result == -1:
-        return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Transaction failed. Please try again.")
-    return redirect(f"/portfoliodetails/{portfolio_id}")
-
+    preselected = portfolio_id or watchlist_id or ""
+    if portfolio_id:
+        transaction_type = request.form.get("transaction_type")
+        quantity = request.form.get("quantity")
+        price = request.form.get("price")
+        if not all([portfolio_id, asset_id, transaction_type, quantity, price]):
+            return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="All fields are required.")
+        try:
+            quantity = float(quantity)
+            price = float(price)
+        except ValueError:
+            return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Invalid quantity or price.")
+        if quantity <= 0 or price <= 0:
+            return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Quantity and price must be greater than 0.")
+        if transaction_type == "Sell":
+            current_qty = get_holding_quantity(int(portfolio_id), int(asset_id))
+            if quantity > current_qty:
+                return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected,
+                                    error=f"Cannot sell {quantity} — you only hold {current_qty}.")
+        result = add_transaction(int(portfolio_id), int(asset_id), transaction_type, quantity, price)
+        if result == -1:
+            return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Transaction failed. Please try again.")
+        return redirect(f"/portfoliodetails/{portfolio_id}")
+    else:
+        max_price = request.form.get("max_price")
+        min_price = request.form.get("min_price")
+        result = add_to_watchlist(watchlist_id, asset_id, max_price, min_price)
+        if result == -1:
+            return render_template("assetaction.html", portfolios=portfolios, assets=assets, preselected=preselected, error="Failed to add watchlist.")
+        return redirect(f"/watchlistdetails/{watchlist_id}")
+    
 # portfolio/watchlist action form, create portfolio/watchlist etc
 @app.route("/listaction", methods=["GET", "POST"])
 def app_listaction():
