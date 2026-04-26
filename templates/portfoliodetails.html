@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ info[0] }}</h2>
+<p>Risk Profile: {{ info[1] }}</p>
+
+<a href="/assetaction?portfolio_id={{ portfolio_id }}" class="btn btn-success btn-sm">Trade</a>
+<a href="/portfoliodetails/{{ portfolio_id }}/delete" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
+
+<h4 class="mt-4">Holdings</h4>
+{% if holdings == -1 %}
+<p>No holdings yet.</p>
+{% else %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Avg Cost</th>
+            <th>Current Price</th>
+            <th>Total Value</th>
+            <th>Unrealized Gain</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for h in holdings %}
+        <tr>
+            <td>{{ h[0] }}</td>
+            <td>{{ h[1] }}</td>
+            <td>{{ h[2] }}</td>
+            <td>{{ h[3] }}</td>
+            <td>${{ h[4] }}</td>
+            <td>${{ h[5] }}</td>
+            <td>${{ h[6] }}</td>
+            <td>${{ h[7] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<h4 class="mt-4">Risk Metrics</h4>
+{% if risk == -1 %}
+<p>No risk data available.</p>
+{% else %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Volatility</th>
+            <th>Sharpe Ratio</th>
+            <th>Beta</th>
+            <th>Calculated At</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{ risk[0] }}</td>
+            <td>{{ risk[1] }}</td>
+            <td>{{ risk[2] }}</td>
+            <td>{{ risk[3] }}</td>
+        </tr>
+    </tbody>
+</table>
+{% endif %}
+
+<h4 class="mt-4">Portfolio History</h4>
+{% if history == -1 %}
+<p>No history available.</p>
+{% else %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Total Value</th>
+            <th>Unrealized Gains</th>
+            <th>Daily Return</th>
+            <th>Monthly Return</th>
+            <th>Recorded At</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for ph in history %}
+        <tr>
+            <td>${{ ph[0] }}</td>
+            <td>${{ ph[1] }}</td>
+            <td>{{ ph[2] }}</td>
+            <td>{{ ph[3] }}</td>
+            <td>{{ ph[4] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<h4 class="mt-4">Transaction History</h4>
+{% if transactions == -1 %}
+<p>No transactions yet.</p>
+{% else %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Price/Unit</th>
+            <th>Total Cost</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for t in transactions %}
+        <tr>
+            <td>{{ t[0] }}</td>
+            <td>{{ t[1] }}</td>
+            <td>{{ t[2] }}</td>
+            <td>{{ t[3] }}</td>
+            <td>${{ t[4] }}</td>
+            <td>${{ t[5] }}</td>
+            <td>{{ t[6] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<a href="/dashboard" class="btn btn-outline-primary mt-3">Back to Dashboard</a>
+{% endblock %}
