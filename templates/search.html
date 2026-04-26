@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Search Assets</h2>
+
+<form method="GET" action="/search">
+    <div class="input-group mb-4">
+        <input type="text" name="q" class="form-control" placeholder="Search by ticker or company name..." value="{{ query }}">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+{% if results == -1 %}
+<p>No assets found for "{{ query }}".</p>
+{% elif results %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Ticker</th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Sector</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for r in results %}
+        <tr>
+            <td>{{ r[1] }}</td>
+            <td>{{ r[2] }}</td>
+            <td>{{ r[3] }}</td>
+            <td>{{ r[4] }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<a href="/dashboard" class="btn btn-outline-primary mt-3">Back to Dashboard</a>
+{% endblock %}

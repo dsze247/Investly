@@ -41,6 +41,8 @@ def app_login():
 # signup page - screen 0
 @app.route("/signup", methods=['GET', "POST"])
 def app_signup():
+    if "user_id" in session:
+        return redirect("/dashboard")
     if request.method == 'GET':
         return render_template("signup.html")
     else:
@@ -116,6 +118,7 @@ def app_assetaction():
     portfolios = get_user_portfolios(session["user_id"])
     if portfolios == -1:
         portfolios = []
+        return redirect("/listaction")
     assets = get_all_assets()
     if assets == -1:
         assets = []
@@ -189,7 +192,7 @@ def app_portfolio_delete(portfolio_id):
     else:
         return redirect("/login")
     
-# deleting a watchlise
+# deleting a watchlist
 @app.route("/watchlistdetails/<int:watchlist_id>/delete")
 def app_watchlist_delete(watchlist_id):
     if "user_id" in session:
@@ -197,6 +200,20 @@ def app_watchlist_delete(watchlist_id):
         if result == -1:
             return "Error deleting watchlist", 500
         return redirect("/dashboard")
+    else:
+        return redirect("/login")
+    
+# search page
+@app.route("/search", methods=["GET"])
+def app_search():
+    if "user_id" in session:
+
+        q = request.args.get("q", "")
+        if q:
+            result = search_assets(q)
+        else:
+            result = None
+        return render_template("search.html", query=q, results=result)
     else:
         return redirect("/login")
 
