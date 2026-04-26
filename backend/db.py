@@ -247,7 +247,6 @@ def add_to_watchlist(watchlist_id, asset_id, max_price, min_price):
     cursor.close()
     connection.close()
 
-
 def update_portfolio(portfolio_id, new_name, new_risk_profile, user_id):
     connection = get_connection() # connect to railway (our mysql db server)
     cursor = connection.cursor() # a cursor is a pointer that allows us to go through query results
@@ -350,3 +349,4 @@ def create_watchlist(user_id, name, watchlist_type):
         return -1
     cursor.close()
     connection.close()
+

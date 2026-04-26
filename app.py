@@ -149,9 +149,24 @@ def app_assetaction():
     return redirect(f"/portfoliodetails/{portfolio_id}")
 
 # portfolio/watchlist action form, create portfolio/watchlist etc
-@app.route("/listaction")
+@app.route("/listaction", methods=["GET", "POST"])
 def app_listaction():
-    return "<p> list action form. should facilitate creating portfolios and watchlists</p>"
+    if "user_id" in session:
+        if request.method == "GET":
+            return render_template("listaction.html")
+        user_id = session["user_id"]
+        ltype = request.form["list_type"]
+        name = request.form["list_name"]
+        if ltype == "portfolio":
+            risk_profile = request.form["risk_profile"]
+            result = create_portfolio(user_id, name, risk_profile)
+        else:
+            result = create_watchlist(user_id, name, "standard")
+        if result == -1:
+            return render_template("listaction.html", error="Something went wrong.")
+        return redirect("/dashboard")
+    else:
+        return redirect("/login")
 
 
 if __name__ == "__main__":

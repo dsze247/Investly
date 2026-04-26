@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Welcome, {{ session["first_name"] }}</h2>
+<p>{{ session["email"] }}</p>
+
+<div class="card p-4 mt-3" style="max-width: 600px; margin: auto;">
+    <form method="POST" action="/listaction">
+        <div class="row mb-3">
+            <div class="col">
+                <label for="portfolio" class="border rounded p-3 d-flex align-items-start gap-2 h-100" style="background-color: #e9ecef; cursor: pointer;">
+                    <input type="radio" name="list_type" id="portfolio" value="portfolio" checked style="margin-top: 3px; flex-shrink: 0;">
+                    <div>
+                        <strong>Create Portfolio</strong><br>
+                        <small class="text-muted">Track holdings, performance, and risk</small>
+                    </div>
+                </label>
+            </div>
+            <div class="col">
+                <label for="watchlist" class="border rounded p-3 d-flex align-items-start gap-2 h-100" style="background-color: #e9ecef; cursor: pointer;">
+                    <input type="radio" name="list_type" id="watchlist" value="watchlist" style="margin-top: 3px; flex-shrink: 0;">
+                    <div>
+                        <strong>Create Watchlist</strong><br>
+                        <small class="text-muted">Track prices and set alerts</small>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">List Name</label>
+            <input type="text" name="list_name" class="form-control" placeholder="e.g. Tech Leaders" required>
+        </div>
+
+        <div class="mb-3" id="risk_profile_field">
+            <label class="form-label">Risk Profile</label>
+            <select name="risk_profile" class="form-select">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100">Create</button>
+    </form>
+</div>
+
+<script>
+    const portfolioRadio = document.getElementById('portfolio');
+    const watchlistRadio = document.getElementById('watchlist');
+    const riskField = document.getElementById('risk_profile_field');
+
+    function toggleRiskField() {
+        riskField.style.display = portfolioRadio.checked ? 'block' : 'none';
+    }
+
+    portfolioRadio.addEventListener('change', toggleRiskField);
+    watchlistRadio.addEventListener('change', toggleRiskField);
+</script>
+{% endblock %}
