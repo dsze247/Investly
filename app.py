@@ -167,6 +167,28 @@ def app_listaction():
         return redirect("/dashboard")
     else:
         return redirect("/login")
+    
+# deleting a protfolio
+@app.route("/portfoliodetails/<int:portfolio_id>/delete")
+def app_portfolio_delete(portfolio_id):
+    if "user_id" in session:
+        result = delete_portfolio(portfolio_id, session["user_id"])
+        if result == -1:
+            return "Error deleting portfolio", 500
+        return redirect("/dashboard")
+    else:
+        return redirect("/login")
+    
+# deleting a watchlise
+@app.route("/watchlistdetails/<int:watchlist_id>/delete")
+def app_watchlist_delete(watchlist_id):
+    if "user_id" in session:
+        result = delete_watchlist(watchlist_id, session["user_id"])
+        if result == -1:
+            return "Error deleting watchlist", 500
+        return redirect("/dashboard")
+    else:
+        return redirect("/login")
 
 
 if __name__ == "__main__":

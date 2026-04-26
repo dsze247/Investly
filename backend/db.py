@@ -154,11 +154,11 @@ def get_watchlist_holdings(watchlist_id):
                     INNER JOIN PriceHistory ph ON a.asset_id = ph.asset_id
                     INNER JOIN PriceHistory ph_prev ON a.asset_id = ph_prev.asset_id
                     WHERE wh.watchlist_id = %s
-                    AND ph.recorded_date = (SELECT MAX(recorded_date) FROM PriceHistory WHERE asset_id = a.asset_id) -- get most recent pricehistory
+                    AND ph.recorded_date = (SELECT MAX(recorded_date) FROM PriceHistory WHERE asset_id = a.asset_id)
                     AND ph_prev.recorded_date = 
                         (SELECT MAX(recorded_date) 
                         FROM PriceHistory 
-                        WHERE asset_id = a.asset_id AND recorded_date < ph.recorded_date); -- get the most second recent price history""", (watchlist_id,)) 
+                        WHERE asset_id = a.asset_id AND recorded_date < ph.recorded_date);""", (watchlist_id,)) 
     output = cursor.fetchall() # fetch all the results
     cursor.close()
     connection.close()
