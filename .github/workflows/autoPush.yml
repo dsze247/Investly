@@ -1,0 +1,23 @@
+name: Deploying to Heroku
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+            fetch-depth: 0 
+
+      - name: Deploys to Heroku
+        env:
+            heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+            heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+        run: | 
+          git remote add heroku https://heroku:$heroku_api_key@git.heroku.com/$heroku_app_name.git
+          git push heroku HEAD:main --force
