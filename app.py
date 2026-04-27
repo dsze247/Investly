@@ -26,6 +26,8 @@ def app_main():
 # login page - screen 0
 @app.route("/login", methods=['GET', "POST"])
 def app_login():
+    if "user_id" in session:
+        return redirect("/dashboard")
     if request.method == 'GET':
         return render_template("login.html")
     else:
