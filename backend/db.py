@@ -199,7 +199,8 @@ def add_transaction(portfolio_id, asset_id, transaction_type, quantity, price):
                             VALUES (%s, %s, %s, %s, %s, NOW());""", (portfolio_id, asset_id, transaction_type, quantity, price))
         cursor.execute("""CALL record_portfolio_snapshot(%s, NOW())""", (portfolio_id,)) 
         connection.commit() # save the changes
-    except:
+    except Exception as e:
+        print(f"Error: {e}")
         cursor.close()
         connection.close()
         return -1
